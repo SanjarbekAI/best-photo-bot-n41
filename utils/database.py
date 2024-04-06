@@ -35,7 +35,7 @@ class Database:
         likes = """
         CREATE TABLE IF NOT EXISTS likes (
         id SERIAL PRIMARY KEY,
-        user_id INT references users(id),
+        chat_id BIGINT,
         photo_id INT references photos(id),
         is_like BOOLEAN DEFAULT false)
         """
@@ -58,11 +58,18 @@ class Database:
         result = self.cursor.fetchone()
         return result
 
-    def get_random_photo(self):
+    def get_random_photo(self, chat_id):
         query = f"SELECT * FROM photos WHERE status = true"
         self.cursor.execute(query)
         result = self.cursor.fetchall()
-        return random.choice(result)
+        random_photo = random.choice(result)
+        return random_photo
+
+    def check_user_like(self, chat_id, photo_id, is_like):
+        query = f"SELECT * FROM likes WHERE chat_id = {chat_id} and photo_id = {photo_id} and is_like = {is_like}"
+        self.cursor.execute(query)
+        result = self.cursor.fetchone()
+        return result
 
     def get_photo_likes(self, photo_id):
         query_like = f"SELECT COUNT(*) FROM likes WHERE photo_id = {photo_id} AND is_like = true"
@@ -94,5 +101,16 @@ class Database:
         self.conn.commit()
         return True
 
+    def user_like(self, chat_id, photo_id, is_like):
+        query = f"""INSERT INTO likes (chat_id, photo_id, is_like)
+           VALUES ({chat_id}, '{photo_id}', {is_like})"""
+        self.cursor.execute(query)
+        self.conn.commit()
+        return True
 
+    def user_delete_like(self, chat_id, photo_id):
+        query = f"""DELETE FROM likes WHERE chat_id = {chat_id} AND photo_id = {photo_id}"""
+        self.cursor.execute(query)
+        self.conn.commit()
+        return True
 
