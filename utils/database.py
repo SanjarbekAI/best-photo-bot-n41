@@ -1,5 +1,6 @@
 import psycopg2 as db
 from main import config
+import random
 
 
 class Database:
@@ -26,7 +27,8 @@ class Database:
         photos = """
         CREATE TABLE IF NOT EXISTS photos (
         id SERIAL PRIMARY KEY,
-        user_id INT references users(id),
+        chat_id BIGINT,
+        photo_id VARCHAR(250),
         status BOOLEAN DEFAULT false)
         """
 
@@ -50,6 +52,27 @@ class Database:
         result = self.cursor.fetchone()
         return result
 
+    def get_user_photo_by_chat_id(self, chat_id):
+        query = f"SELECT * FROM photos WHERE chat_id = {chat_id} AND status = true"
+        self.cursor.execute(query)
+        result = self.cursor.fetchone()
+        return result
+
+    def get_random_photo(self):
+        query = f"SELECT * FROM photos WHERE status = true"
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        return random.choice(result)
+
+    def get_photo_likes(self, photo_id):
+        query_like = f"SELECT COUNT(*) FROM likes WHERE photo_id = {photo_id} AND is_like = true"
+        query_dislike = f"SELECT COUNT(*) FROM likes WHERE photo_id = {photo_id} AND is_like = false"
+        self.cursor.execute(query_like)
+        likes = self.cursor.fetchall()
+        self.cursor.execute(query_dislike)
+        dislikes = self.cursor.fetchall()
+        return likes, dislikes
+
     def add_user(self, data: dict):
         chat_id = data["chat_id"]
         full_name = data["full_name"]
@@ -60,3 +83,16 @@ class Database:
         self.cursor.execute(query)
         self.conn.commit()
         return True
+
+    def add_photo(self, data: dict):
+        chat_id = data["chat_id"]
+        photo_id = data["photo_id"]
+
+        query = f"""INSERT INTO photos (chat_id, photo_id, status)
+           VALUES ({chat_id}, '{photo_id}', true)"""
+        self.cursor.execute(query)
+        self.conn.commit()
+        return True
+
+
+

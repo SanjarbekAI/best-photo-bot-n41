@@ -1,5 +1,6 @@
 from aiogram.dispatcher import FSMContext
 
+from keyboards.default.user import user_main_menu
 from loader import dp, db
 from aiogram import types
 
@@ -10,7 +11,7 @@ from states.user import RegisterState
 async def user_start(message: types.Message):
     if db.get_user_by_chat_id(chat_id=message.chat.id):
         text = "Assalomu alaykum, xush kelibsiz"
-        await message.answer(text=text)
+        await message.answer(text=text, reply_markup=user_main_menu)
     else:
         text = "Assalomu alaykum, ismingizni kiriting"
         await message.answer(text=text)
@@ -44,5 +45,5 @@ async def get_location(message: types.Message, state: FSMContext):
         text = "Successfully registered ✅"
     else:
         text = "Bot has some problems"
-    await message.answer(text=text)
+    await message.answer(text=text, reply_markup=user_main_menu)
     await state.finish()
