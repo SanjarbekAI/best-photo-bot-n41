@@ -40,3 +40,15 @@ async def yes_or_no(chat_id):
         ]
     )
     return markup
+
+
+contact_admin = CallbackData('reply', 'act', 'chat_id')
+async def contact_admin_def(chat_id):
+    contact_admin_button = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="Reply", callback_data=contact_admin.new(act="reply", chat_id=chat_id))
+            ]
+        ]
+    )
+    return contact_admin_button

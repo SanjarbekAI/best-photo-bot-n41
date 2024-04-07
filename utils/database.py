@@ -65,8 +65,8 @@ class Database:
         random_photo = random.choice(result)
         return random_photo
 
-    def check_user_like(self, chat_id, photo_id, is_like):
-        query = f"SELECT * FROM likes WHERE chat_id = {chat_id} and photo_id = {photo_id} and is_like = {is_like}"
+    def check_user_like(self, chat_id, photo_id):
+        query = f"SELECT * FROM likes WHERE chat_id = {chat_id} and photo_id = {photo_id}"
         self.cursor.execute(query)
         result = self.cursor.fetchone()
         return result

@@ -11,10 +11,12 @@ from states.user import RegisterState
 @dp.callback_query_handler(user_like_data.filter(act='like'))
 async def user_like_handler(call: types.CallbackQuery, callback_data: dict):
     photo_id = callback_data.get('photo_id')
-    is_like = db.check_user_like(chat_id=call.message.chat.id, photo_id=int(photo_id), is_like=True)
+    is_like = db.check_user_like(chat_id=call.message.chat.id, photo_id=int(photo_id))
 
     if is_like:
-        db.user_delete_like(chat_id=call.message.chat.id, photo_id=photo_id)
+        db.user_delete_like(chat_id=call.message.chat.id, photo_id=int(photo_id))
+        if is_like[3] is False:
+            db.user_like(chat_id=call.message.chat.id, photo_id=photo_id, is_like=True)
     else:
         db.user_like(chat_id=call.message.chat.id, photo_id=photo_id, is_like=True)
     likes, dislikes = db.get_photo_likes(photo_id)
@@ -26,8 +28,13 @@ async def user_like_handler(call: types.CallbackQuery, callback_data: dict):
 @dp.callback_query_handler(user_dislike_data.filter(act='dislike'))
 async def user_like_handler(call: types.CallbackQuery, callback_data: dict):
     photo_id = callback_data.get('photo_id')
-    if db.check_user_like(chat_id=call.message.chat.id, photo_id=photo_id, is_like=False):
-        db.user_delete_like(chat_id=call.message.chat.id, photo_id=photo_id)
+    is_like = db.check_user_like(chat_id=call.message.chat.id, photo_id=int(photo_id))
+
+    if is_like:
+        db.user_delete_like(chat_id=call.message.chat.id, photo_id=int(photo_id))
+        if is_like[3] is True:
+            db.user_like(chat_id=call.message.chat.id, photo_id=photo_id, is_like=False)
+
     else:
         db.user_like(chat_id=call.message.chat.id, photo_id=photo_id, is_like=False)
     likes, dislikes = db.get_photo_likes(photo_id)
